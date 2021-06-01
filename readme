@@ -1,0 +1,60 @@
+YELP CAMP - ADDING THE REVIEWS MODEL
+En el models directory se crea un nuevo modelo: review.js
+En el:
+1. Require Mongoose
+2. Set Schema
+3. Definir el reviewSchema, uno muy sencillo, solo con rating y texto (body):
+
+  const reviewSchema = new Schema({
+    body: String,
+    rating: number
+  });
+4. module.exports...
+5. Conectar un review (o varios) a un campground. Una relacion OneToMany. Vamos a empotrar, "embed" un array de object ids en cada campground. Esto implica modificar el campground schema, agregandole una propiedad reviews que sera un array con object ids y con ref (asociacion), (o sea, un objectId del review model):
+
+  reviews: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Review'
+    }
+  ]
+
+REVIEW FORM
+La colocaremos en el show page de cada campground, justo bajo el card.
+
+  <h2>LEAVE A REVIEW</h2>
+  <form action="" class="mb-3">
+    <div class="mb-3">
+      <label class="form-label" for="rating">RATING</label>
+      <input class="form-range" type="range" min="1" max="5" name="review[rating]" id="rating">
+    </div>
+    <div class="mb-3">
+      <label class="form-label" for="body">REVIEW</label>
+      <textarea class="form-control" name="review[body]" id="body" cols="30" rows="3"></textarea>
+    </div>
+    <button class="btn btn-success">SUBMIT</button>
+  </form>
+
+Revisar como se ve. 
+
+Definir a donde se submit.
+Definir la ruta en app.js.
+Como el review debe estar asociado al campground, lo mas facil es incluir el campground id en el path. una especie de POST/campgrouns/:id/reviews. No necesitamos todo el CRUD para reviews. Solo necesitamos ver todos los reviews para un campground. Colocaremos la ruta debajo de las campground routes.
+
+  app.post('/campgrounds/:id/reviews', catchAsync(async(req, res) => {
+    res.send('YOU MADE IT REVIEWS ROUTE')
+  }))
+
+En el form, el actios es:
+  <form action="/campground/<%= campground_id %> /reviews" method="POST"...>
+
+Probar.
+
+Lo siguiente es hacer el review, pero antes debemos buscar el campground al que se asocia (await). Buscar el review. Meterlo (push) en el array. Guardar el review y guardar el campground. Redirigir al campground show page.
+
+
+
+
+Pero antes debemos requerir el review model (arriba). esto permitira instanciar un nuevo review, guardarlo:
+  const Review = require('./models/review');
+
